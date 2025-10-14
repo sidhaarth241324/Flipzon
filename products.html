@@ -87,6 +87,8 @@
       <textarea id="productDesc" placeholder="Description" required></textarea>
       <input type="number" id="productQty" placeholder="Quantity" required>
       <button type="submit">Submit</button>
+      <button type="button" id="cancelBtn">Cancel</button>
+
     </form>
   </div>
 
@@ -299,6 +301,13 @@ async function deleteProduct(id) {
     console.error("Error loading product:", err);
   }
 }
+// Cancel button - hides the form and resets inputs
+document.getElementById("cancelBtn").addEventListener("click", () => {
+  const form = document.getElementById("addProductForm");
+  form.reset();
+  form.style.display = "none";
+  document.getElementById("formTitle").textContent = "Add New Product";
+});
 
 async function deleteProduct(id) {
   if (!confirm("Are you sure you want to delete this product?")) return;
