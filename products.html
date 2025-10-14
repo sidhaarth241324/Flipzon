@@ -3,67 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <title>Products</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    #userDetails {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    #products {
+      margin-top: 20px;
+    }
+
+    .product {
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    #adminControls {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #addProductForm {
+      display: none;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    input, textarea {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
   <h1>Products Page</h1>
   <div id="userDetails"></div>
   <button id="logoutBtn">Logout</button>
-  <div id="products"></div>
+
   <div id="adminControls" style="display:none;">
-  <button id="addProductBtn">Add Product</button>
-</div>
-  <!-- Axios CDN -->
+    <button id="addProductBtn">Add Product</button>
+
+    <form id="addProductForm">
+      <h3>Add New Product</h3>
+      <input type="text" id="productName" placeholder="Product Name" required>
+      <input type="number" id="productPrice" placeholder="Price" required>
+      <textarea id="productDesc" placeholder="Description" required></textarea>
+      <input type="number" id="productQty" placeholder="Quantity" required>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div id="products"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     const token = sessionStorage.getItem("idToken");
     if (!token) {
-      window.location.href = "index.html"; // redirect to login if not logged in
+      window.location.href = "index.html";
     }
 
-    // Show user info
     const name = sessionStorage.getItem("displayName");
     const email = sessionStorage.getItem("email");
+    const role = sessionStorage.getItem("role");
+
     document.getElementById("userDetails").innerHTML = `
-      <p>Name: ${name}</p>
-      <p>Email: ${email}</p>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Role:</strong> ${role}</p>
     `;
 
-      // On products page after fetching user info
-const role = sessionStorage.getItem("role");
-if (role === "admin") {
-  document.getElementById("adminControls").style.display = "block";
-}
+    // Show admin section if user is admin
+    if (role === "admin") {
+      document.getElementById("adminControls").style.display = "block";
+    }
 
-    // Logout button
     document.getElementById("logoutBtn").addEventListener("click", () => {
       sessionStorage.clear();
       window.location.href = "index.html";
     });
 
-    // Fetch products from Firestore
     async function fetchProducts() {
       try {
         const res = await axios.get(
           "https://firestore.googleapis.com/v1/projects/flipzon-69df3/databases/(default)/documents/Products",
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const productsDiv = document.getElementById("products");
-        const documents = res.data.documents || [];
+        const docs = res.data.documents || [];
 
-        if (documents.length === 0) {
-          productsDiv.innerText = "No products found.";
+        if (docs.length === 0) {
+          productsDiv.innerHTML = "<p>No products found.</p>";
           return;
         }
 
-        productsDiv.innerHTML = documents.map(doc => {
-          const name = doc.fields.name?.stringValue || "Unknown";
-          const brand = doc.fields.brand?.stringValue || "Unknown";
-          return `<p>${name} - ${brand}</p>`;
+        productsDiv.innerHTML = docs.map(doc => {
+          const fields = doc.fields;
+          return `
+            <div class="product">
+              <h3>${fields.name?.stringValue || "Unnamed"}</h3>
+              <p><strong>Price:</strong> ₹${fields.price?.integerValue || "0"}</p>
+              <p><strong>Description:</strong> ${fields.description?.stringValue || "No details"}</p>
+              <p><strong>Quantity:</strong> ${fields.quantity?.integerValue || "0"}</p>
+            </div>
+          `;
         }).join("");
-
       } catch (err) {
         console.error(err);
         document.getElementById("products").innerText = "Failed to load products.";
@@ -71,6 +152,52 @@ if (role === "admin") {
     }
 
     fetchProducts();
+
+    // ADMIN — Add Product
+    const addProductBtn = document.getElementById("addProductBtn");
+    const addProductForm = document.getElementById("addProductForm");
+
+    addProductBtn.addEventListener("click", () => {
+      addProductForm.style.display = addProductForm.style.display === "none" ? "block" : "none";
+    });
+
+    addProductForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("productName").value.trim();
+      const price = parseInt(document.getElementById("productPrice").value);
+      const description = document.getElementById("productDesc").value.trim();
+      const quantity = parseInt(document.getElementById("productQty").value);
+
+      if (!name || !price || !description || !quantity) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      try {
+        await axios.post(
+          "https://firestore.googleapis.com/v1/projects/flipzon-69df3/databases/(default)/documents/Products",
+          {
+            fields: {
+              name: { stringValue: name },
+              price: { integerValue: price },
+              description: { stringValue: description },
+              quantity: { integerValue: quantity },
+            }
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        alert("Product added successfully!");
+        addProductForm.reset();
+        addProductForm.style.display = "none";
+        fetchProducts(); // refresh list
+
+      } catch (err) {
+        console.error("Add Product Error:", err.response?.data || err);
+        alert("Failed to add product. Check console for details.");
+      }
+    });
   </script>
 </body>
 </html>

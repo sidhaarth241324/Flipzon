@@ -63,7 +63,7 @@ async function handleRedirectAuth() {
     sessionStorage.setItem("displayName", data.displayName || "");
     sessionStorage.setItem("email", data.email || "");
 
-    // 🔥 Role Fetch Logic
+    //  Role Fetch Logic
     const emailSafe = data.email.replace(/\./g, "_").replace(/@/g, "_");
     let role = "user"; // default
 
@@ -73,7 +73,7 @@ async function handleRedirectAuth() {
         { headers: { Authorization: `Bearer ${data.idToken}` } }
       );
 
-      // ✅ Corrected placement: role extraction must be inside the try block
+      // Corrected placement: role extraction must be inside the try block
       role = roleRes.data.fields?.role?.stringValue || "user";
       console.log("Role fetched:", role);
     } catch (err) {
