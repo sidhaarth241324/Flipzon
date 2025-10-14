@@ -9,7 +9,9 @@
   <div id="userDetails"></div>
   <button id="logoutBtn">Logout</button>
   <div id="products"></div>
-
+  <div id="adminControls" style="display:none;">
+  <button id="addProductBtn">Add Product</button>
+</div>
   <!-- Axios CDN -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
@@ -25,6 +27,12 @@
       <p>Name: ${name}</p>
       <p>Email: ${email}</p>
     `;
+
+      // On products page after fetching user info
+const role = sessionStorage.getItem("role");
+if (role === "admin") {
+  document.getElementById("adminControls").style.display = "block";
+}
 
     // Logout button
     document.getElementById("logoutBtn").addEventListener("click", () => {
