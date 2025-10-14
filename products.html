@@ -234,9 +234,17 @@ async function deleteProduct(id) {
     const addProductForm = document.getElementById("addProductForm");
 
     addProductBtn.addEventListener("click", () => {
-      addProductForm.style.display = addProductForm.style.display === "none" ? "block" : "none";
-    });
+ const form = document.getElementById("addProductForm");
+  const formTitle = document.getElementById("formTitle");
 
+  // Switch to "Add" mode
+  formTitle.textContent = "Add New Product";
+  form.reset(); // clear previous values
+  form.style.display = form.style.display === "none" ? "block" : "none";
+
+  // Remove any old edit event to prevent double-submit
+  form.onsubmit = null;
+});
     addProductForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -302,7 +310,7 @@ async function deleteProduct(id) {
     fetchProducts();
   } catch (err) {
     console.error("Error deleting product:", err);
-    alert("❌ Failed to delete product.");
+    alert(" Failed to delete product.");
   }
 }
   </script>
