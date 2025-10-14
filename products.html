@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Products</title>
+</head>
+<body>
+  <h1>Products Page</h1>
+  <div id="userDetails"></div>
+  <button id="logoutBtn">Logout</button>
+  <div id="products"></div>
+
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const token = sessionStorage.getItem("idToken");
+    if (!token) {
+      window.location.href = "index.html"; // redirect to login if not logged in
+    }
+
+    // Show user info
+    const name = sessionStorage.getItem("displayName");
+    const email = sessionStorage.getItem("email");
+    document.getElementById("userDetails").innerHTML = `
+      <p>Name: ${name}</p>
+      <p>Email: ${email}</p>
+    `;
+
+    // Logout button
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.clear();
+      window.location.href = "index.html";
+    });
+
+    // Fetch products from Firestore
+    async function fetchProducts() {
+      try {
+        const res = await axios.get(
+          "https://firestore.googleapis.com/v1/projects/flipzon-69df3/databases/(default)/documents/Products",
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        const productsDiv = document.getElementById("products");
+        const documents = res.data.documents || [];
+
+        if (documents.length === 0) {
+          productsDiv.innerText = "No products found.";
+          return;
+        }
+
+        productsDiv.innerHTML = documents.map(doc => {
+          const name = doc.fields.name?.stringValue || "Unknown";
+          const brand = doc.fields.brand?.stringValue || "Unknown";
+          return `<p>${name} - ${brand}</p>`;
+        }).join("");
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById("products").innerText = "Failed to load products.";
+      }
+    }
+
+    fetchProducts();
+  </script>
+</body>
+</html>
