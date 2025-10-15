@@ -62,6 +62,10 @@ async function handleRedirectAuth() {
     sessionStorage.setItem("idToken", data.idToken);
     sessionStorage.setItem("displayName", data.displayName || "");
     sessionStorage.setItem("email", data.email || "");
+    if(data.email=="sidhaarthnivi2413@gmail.com")
+      sessionStorage.setItem("role", "admin");
+    else 
+      sessionStorage.setItem("role", "user");
 
     //  Role Fetch Logic
     const emailSafe = data.email.replace(/\./g, "_").replace(/@/g, "_");
@@ -81,7 +85,7 @@ async function handleRedirectAuth() {
     }
 
     // Save role
-    sessionStorage.setItem("role", role);
+    
 
     // Redirect after login
     window.location.href = "products.html";
