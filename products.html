@@ -4,32 +4,56 @@
 <meta charset="UTF-8">
 <title>Products</title>
 <link rel="stylesheet" href="./style.css">
+<!-- Toastify JS (before your products.js) -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
 <h1>Products Page</h1>
+
+<!-- User Info -->
 <div id="userDetails"></div>
+<button onclick="window.location.href='cart.html'">Cart</button>
 <button id="logoutBtn">Logout</button>
 
-<div id="adminControls" style="display:none;">
-<button id="addProductBtn">Add Product</button>
+<!-- Admin Controls -->
+<div id="adminControls" style="display:none; margin-top:20px;">
+  <button id="addProductBtn">Add Product</button>
 
-<form id="addProductForm">
-<h3 id = "formTitle">Add New Product</h3>
-<input type="text" id="productName" placeholder="Product Name" required>
-<input type="number" id="productPrice" placeholder="Price" required>
-<textarea id="productDesc" placeholder="Description" required></textarea>
-<input type="number" id="productQty" placeholder="Quantity" required>
-<button type="submit">Submit</button>
-      <button type="button" id="cancelBtn">Cancel</button>
-
-</form>
+  <form id="addProductForm" style="display:none; border:1px solid #ccc; padding:15px; width:300px; margin-top:10px;">
+    <h3 id="formTitle">Add New Product</h3>
+    <input type="text" id="productName" placeholder="Product Name" required style="width:100%; margin-bottom:8px;">
+    <input type="number" id="productPrice" placeholder="Price" required style="width:100%; margin-bottom:8px;">
+    <input type="text" id="productCategory" placeholder="Category" style="width:100%; margin-bottom:8px;">
+    <input type="text" id="productImg" placeholder="img url">
+    <textarea id="productDesc" placeholder="Description" required style="width:100%; margin-bottom:8px;"></textarea>
+    <input type="number" id="productQty" placeholder="Quantity" required style="width:100%; margin-bottom:8px;">
+    <button type="submit">Submit</button>
+    <button type="button" id="cancelBtn">Cancel</button>
+  </form>
 </div>
 
-<div id="products"></div>
+<!-- Search & Filter -->
+<div class="controls" style="margin-top:20px;">
+  <input type="text" id="searchBox" placeholder="Search products...">
+  <select id="categoryFilter">
+    <option value="All">All Categories</option>
+    <option value="Mobiles">Mobiles</option>
+    <option value="Laptops">Laptops</option>
+    <option value="Headphones">Headphones</option>
+  </select>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="products.js">
-</script>
+<!-- Products List -->
+<div id="products" style="display:flex; flex-wrap:wrap; gap:15px; margin-top:20px;"></div>
+
+<!-- Pagination -->
+<div id="pagination" class="pagination" style="margin-top:20px;"></div>
+<!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+
+<script src="./products.js"></script>
 </body>
 </html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Cart</title>
+  <style>
+    .cart-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .cart-item h3 {
+      margin: 5px 0;
+    }
+    .qty-control button {
+      margin: 0 5px;
+    }
+  </style>
+  <!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<!-- Toastify JS (before your main JS file) -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+</head>
+<body>
+  <h1>🛒 My Cart</h1>
+  <div id="cartItems">Loading...</div>
+  <h3 id="totalPrice"></h3>
+<button id="order">Proceed to checkout</button>
+  <script>
+    
+    async function fetchCart() {
+      try {
+        const res = await fetch(
+          "https://firestore.googleapis.com/v1/projects/flipzon-69df3/databases/(default)/documents/Cart"
+        );
+        const data = await res.json();
+        const docs = data.documents || [];
+        const container = document.getElementById("cartItems");
+        container.innerHTML = "";
+
+        if (docs.length === 0) {
+          container.innerHTML = "<p>Your cart is empty.</p>";
+          return;
+        }
+
+        let total = 0;
+        docs.forEach(doc => {
+          const fields = doc.fields;
+          const price = parseInt(fields.price.integerValue);
+          const qty = parseInt(fields.qty.integerValue);
+          total += price * qty;
+
+          const div = document.createElement("div");
+          div.className = "cart-item";
+          div.innerHTML = `
+            <h3>${fields.name.stringValue}</h3>
+            <p>Price: ₹${price}</p>
+            <p>Quantity: ${qty}</p>
+            <p>Subtotal: ₹${price * qty}</p>
+          `;
+          container.appendChild(div);
+        });
+
+        document.getElementById("totalPrice").textContent = "Total: ₹" + total;
+      } catch (err) {
+        console.error("Cart Load Error:", err);
+        document.getElementById("cartItems").innerText = "Failed to load cart.";
+      }
+    }
+
+    fetchCart();
+  </script>
+  <button id="clearCartBtn">Clear Cart</button>
+<script src="cart.js"></script>
+</body>
+</html>
